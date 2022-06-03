@@ -1,0 +1,158 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = true;
+}
+
+PARSER_BEGIN(CalculatorV)
+package CalcVisitor;
+
+public class CalculatorV
+{
+  public static void main(String args []) throws ParseException
+  {
+    CalculatorV parser = new CalculatorV(System.in);
+    ASTExpression expression;
+    
+    while (true)
+    {
+      System.out.println("Reading from standard input...");
+      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
+      try
+      {
+        expression = CalculatorV.one_line();
+
+        if (expression == null)
+         	System.out.println("Goodbye.");
+        else { 
+          	// System.out.println(expression.eval());
+          	// expression.print();
+//          	Object result = expression.accept(new EvalAST());
+//          	System.out.println((Integer) result);
+
+          	// Assignment: print out the AST
+          	Object result = expression.accept(new PrintAST());
+          	System.out.println("result = " + result);
+         }
+      }
+      catch (Exception e)
+      {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+        CalculatorV.ReInit(System.in);
+      }
+      catch (Error e)
+      {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+  }
+}
+
+PARSER_END(CalculatorV)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
+}
+
+TOKEN :
+{
+  < CONSTANT : (< DIGIT >)+ >
+| < #DIGIT : [ "0"-"9" ] >
+}
+
+ASTExpression one_line() :
+{
+    ASTExpression tree;
+}
+{
+  tree = sum() ";"
+  {
+    return tree;
+  }
+| ";"
+  {
+    return null;
+  }
+}
+
+ASTExpression sum() :
+{
+  	ASTExpression tree;
+	ASTExpression right;
+	Token operator;
+}
+{
+  tree = term()
+  (
+    (
+      operator = < PLUS >
+    | operator = < MINUS >
+    )
+    right = term() {
+      tree = new ASTOperatorExpression(tree, right, operator.image);
+    }
+  )*
+  {
+    return tree;
+  }
+}
+
+ASTExpression term() :
+{
+  	ASTExpression tree;
+	ASTExpression right;
+	Token operator;
+}
+{
+  tree = unary()
+  (
+    (
+      operator = < MULTIPLY >
+    | operator = < DIVIDE >
+    )
+    right = unary() {
+      tree = new ASTOperatorExpression(tree, right, operator.image);
+    }
+  )*
+  {
+    return tree;
+  }
+}
+
+ASTExpression unary() :
+{
+	ASTExpression tree;
+}
+{
+  < MINUS > tree = element()
+  { return new ASTOperatorExpression(new ASTIntegerLiteral(0), tree, ASTOperatorExpression.MINUS); }
+| tree = element()
+  {  return tree; }
+}
+
+ASTExpression element() :
+{
+  	ASTExpression tree;
+  	Token t;
+}
+{
+  t = < CONSTANT > {  return new ASTIntegerLiteral(Integer.parseInt(t.image)); }
+| "(" tree = sum() ")" { return tree; }
+}

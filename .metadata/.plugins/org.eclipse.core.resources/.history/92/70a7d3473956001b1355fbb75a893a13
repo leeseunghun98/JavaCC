@@ -1,0 +1,19 @@
+package seunghunss.javapackage;
+
+public class I_method {
+	
+	public static void numbering(int n) {
+
+		for(n=0;n<10;n++) {
+			System.out.println(n+1);
+		}
+	}
+	
+	public static void main(String[] args) {
+			numbering(1);
+			numbering(2);
+			numbering(3);
+			numbering(4);
+			numbering(5);
+	}
+}

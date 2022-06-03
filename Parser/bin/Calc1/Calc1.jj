@@ -1,0 +1,64 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+// double바꾸고, sin, cos, tan되게하기?
+options{  static = true;}PARSER_BEGIN(Calc1)package Calc1;
+
+public class Calc1{  public static void main(String args []) throws ParseException  {    Calc1 parser = new Calc1(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");      try      {
+        int result;
+        result = Calc1.one_line();
+        System.out.println("Result = " + result);
+        /*        switch (Calc1.one_line())        {          case 0 :           System.out.println("OK.");          break;          case 1 :           System.out.println("Goodbye.");          break;          default :           break;        }
+        */      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        Calc1.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Calc1)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >| < #DIGIT : [ "0"-"9" ] >}int one_line() : // one_line -- > sum ";" | ";"
+{
+	int result;
+}{  result = sum() ";"  { // This is the action in Java Code    return result; // return value  }| ";"  {    return 0; // return also a value  }}int sum() : // sum -- > term(("+" | "-") term)*{
+	int result;
+	int value;
+	Token t;
+}{  result = term()  (    (      t = < PLUS >    | t = < MINUS > // Plus or Minus    )    value = term()
+    { // Calc1Constants.java
+      if (t.kind == PLUS)
+      	result = result + value;
+      else
+      	result = result - value;
+    }  )* // * 는 0번 이상 반복한다는 뜻, 0번도 가능함
+	{
+  		return result;
+	}}int term() : // term - > unary(("*" | "/") unary)*{
+	int result;
+	int value;
+	Token t;
+}{  result = unary()  (    (      t = < MULTIPLY >    | t = < DIVIDE >    )    value = unary()
+    {
+		if (t.kind == MULTIPLY)
+			result = result * value;
+		else
+			result = result / value;
+  	}  )*
+  {	return result;
+  }}int unary() : // unary -- > ("-" element | element){
+	int result;
+}{  < MINUS > result = element()	{
+		return -result;
+	}
+| result = element()
+	{		return result;	
+	}}int element() : // element -- > ( < Constant > | "(" sum ")"){
+  	Token t; // element()함수에 추가 , Token.java class
+//  System.out.println("I am processing element() non-terminal");
+	int result;
+}{  t = < CONSTANT >
+  {
+//    System.out.println("Token constant =" + t.image);
+	result = Integer.parseInt(t.image);
+	return result;
+  }| "(" result = sum() ")"
+  {
+//    System.out.println("I've processed ( sum ) ");
+    return result;
+  }
+//| result = func()
+}
+
+//int func() : 

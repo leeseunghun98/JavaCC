@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;메인.Main.java&apos; to &apos;Main2.java&apos;&#x0D;&#x0A;- Original project: &apos;BaekJoon&apos;&#x0D;&#x0A;- Original element: &apos;메인.Main.java&apos;&#x0D;&#x0A;- Renamed element: &apos;메인.Main2.java&apos;" description="Rename compilation unit &apos;Main.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src&lt;메인{Main.java" name="Main2.java" references="false" stamp="1613743864964" version="1.0"/>
+</session>

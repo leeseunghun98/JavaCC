@@ -1,0 +1,252 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+
+/*
+	(x = 10) ; result 10 (assignment operation)
+
+	(x=10) * x*2 + (y=10) * (x=20) // result 400
+
+	x; // result 20
+	(z = (k = 2-1)) * 10 - sin(0); // result 10
+
+	x=y=10*2; 1. (x=(y=(10*2))) or 2. (x=(y=10))*2
+
+	Use symbol table for variables (Hash map)
+*/
+
+
+options
+{
+  static = true;
+}
+
+PARSER_BEGIN(Calc1)
+package Calc1;
+
+import java.util.HashMap;
+
+public class Calc1
+{
+  static HashMap<String, Double> symbolTable = new HashMap<String, Double>();
+  
+  public static void main(String args []) throws ParseException
+  {
+    Calc1 parser = new Calc1(System.in);
+    while (true)
+    {
+      System.out.println("Reading from standard input...");
+      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
+      try
+      {
+        double result;
+        result = Calc1.one_line();
+        System.out.println("Result = " + result);
+      }
+      catch (Exception e)
+      {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+        Calc1.ReInit(System.in);
+      }
+      catch (Error e)
+      {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+  }
+}
+
+PARSER_END(Calc1)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
+| < ASSIGN : "=" >
+}
+
+TOKEN : /* IDENTIFIER */
+{
+  < IDENTIFIER : ["a"-"z", "A"-"Z"](["a"-"z", "A"-"Z","0"-"9"])* >
+}
+
+TOKEN :
+{
+  < CONSTANT : (< DIGIT >)+ >
+| < #DIGIT : [ "0"-"9" , "." ] >
+}
+
+//TOKEN :
+//{
+//  < #DIGIT : [ "0"-"9" ] >
+//| < #INT : (< DIGIT >)+ >
+//| < #REAL :
+//    (< INT >)					 // 123
+//  | ([ "." ] < INT >)		 // .123
+//  | (< INT > [ "." ])			 // 123.
+//  | (< INT > [ "." ] < INT >) > // 123.456
+//| < #EXP : [ "E", "e" ] ([ "+", "-" ])? < INT > >
+//| < #REAL_EXP : < REAL > (< EXP >)? >
+//| < CONSTANT : (< REAL_EXP >) >
+//}
+
+double one_line() :   // one_line -- > sum ";" | ";"
+{
+	double result;
+}
+{
+  result = sum() ";"
+  { // This is the action in java code
+    return result; // return value 
+  }
+| ";"
+  {
+     return 0; // return also a value
+  }
+}
+
+double sum() : // sum -- > term ( ("+" | "-") term )*
+{
+  double result;
+  double value;
+  Token t;
+}
+{
+  result = term()
+  (
+    (
+      t = < PLUS >
+    | t = < MINUS >
+    )
+    value = term()
+    {
+      if (t.kind == PLUS) 
+      	result += value;
+      else
+      	result -= value;
+    }
+  )*
+	{
+ 	 	return result;
+	}
+}
+
+double term() : // term -- > unary (("*" | "/") unary)*
+{
+  double result;
+  double value;
+  Token t;
+}
+{
+  result = unary()
+  (
+    (
+      t = < MULTIPLY >
+    | t = < DIVIDE >
+    )
+    value = unary()
+    {
+      if (t.kind == MULTIPLY)
+      	result = result * value;
+      else
+      	result = result / value;
+    }
+  )*
+  {
+    return result;
+  }
+}
+
+double unary() : // unary -- > "-" element | element
+{
+  double result;
+}
+{
+  < MINUS > result = element()
+  	{
+    	return -result;
+  	}
+| result = element()
+	{
+ 	 	return result;
+ 	}
+}
+
+double element() : // element -- >  < Constant > | "(" sum ")" 
+{
+  	Token t;
+	//   System.out.println("I am processing element() non-terminal");
+	double result;
+}
+{
+  t = < CONSTANT >
+  	{
+  	  // System.out.println("Token constant =" + t.image);
+  	  result = Double.parseDouble(t.image);
+  	  return result;
+  	}
+| "(" result = sum() ")"
+	{
+	  // System.out.println("I've processed ( sum ) ");
+	  return result; 
+	}
+
+| result = function_or_variable()
+	{
+	  return result;
+	}
+}
+
+
+double function_or_variable():
+{
+  double result;
+  Token t;
+}
+{
+  t = < IDENTIFIER >
+  (
+	  "(" result = sum() ")"
+	  {
+		if (t.image.equalsIgnoreCase("sin"))
+			return Math.sin(result);
+		else if (t.image.equalsIgnoreCase("cos"))
+			return Math.cos(result);
+		else if (t.image.equalsIgnoreCase("tan"))
+			return Math.tan(result);
+		else if (t.image.equalsIgnoreCase("sqrt"))
+			return Math.sqrt(result);
+	  }
+  |
+	  < ASSIGN > result = sum()
+	  {
+		Double value = Calc1.symbolTable.get(t.image); // returns null if key is not stored
+	
+	    if (value == null)
+	    { 
+	    	Calc1.symbolTable.put(t.image, result);
+	    	System.out.println(t.image + " appends " + result);
+		}
+	    else
+	    	Calc1.symbolTable.replace(t.image, result);
+	    return result;
+	  }
+  |
+	  {
+	    return Calc1.symbolTable.get(t.image);
+	  }
+  )
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 7 elements from project &apos;Compiler&apos;&#x0D;&#x0A;- Original project: &apos;Compiler&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     ParseException.java&#x0D;&#x0A;     SimpleCharStream.java&#x0D;&#x0A;     Token.java&#x0D;&#x0A;     TokenMgrError.java&#x0D;&#x0A;     TP.java&#x0D;&#x0A;     TPConstants.java&#x0D;&#x0A;     TPTokenManager.java" description="Delete elements" element1="/src&lt;{TP.java" element2="/src&lt;{Token.java" element3="/src&lt;{ParseException.java" element4="/src&lt;{TPTokenManager.java" element5="/src&lt;{TokenMgrError.java" element6="/src&lt;{SimpleCharStream.java" element7="/src&lt;{TPConstants.java" elements="7" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1648447983145" subPackages="false" version="1.0"/>
+</session>
